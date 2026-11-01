@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HibroAura — Herbal Hair Care &amp; Skincare</title>
+  <meta name="description" content="HibroAura — herbal hair care and skincare, made with intention.">
+  <meta name="theme-color" content="#526447">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&amp;display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.remove("no-js");</script>
+</head>
+
+<body data-page="home">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <!-- 1. Hero -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero__grid">
+        <div class="hero__text">
+          <p class="eyebrow enter" style="--d:0">HIBROAURA</p>
+          <h1 class="h-xl enter" style="--d:1" id="hero-title">Botanical care<br><span class="h-line">for <span class="rot" id="hero-rot"><span class="sr-only">skin &amp; hair.</span><em class="rot__word" aria-hidden="true">skin &amp; hair.</em></span></span></h1>
+          <p class="lead enter" style="--d:2">Herbal hair care and skincare, made with intention.</p>
+          <a class="btn btn--lg enter" style="--d:3" href="#featured">Explore Products <i
+              data-icon="arrow-right"></i></a>
+          <ul class="hero__facts enter" style="--d:4">
+            <li><i data-icon="leaf"></i>Skincare &amp; haircare</li>
+            <li><i data-icon="message-circle"></i>Order via WhatsApp</li>
+            <li><i data-icon="badge-check"></i>Confirmed by our team</li>
+          </ul>
+        </div>
+        <div class="hero__media enter" style="--d:2">
+          <div class="hero__arch">
+            <div class="hero__sun"></div>
+            <div id="hero-products" class="hero__stage">
+              <!-- HERO IMAGE: change the filename below (file goes in the images/ folder). Missing file → demo artwork shows. -->
+              <img class="hero__photo hero__photo--cover" src="assets/hero.jpg" alt="Hero Image" width="500" height="625">
+            </div>
+          </div>
+          <div class="hero__chip"><i data-icon="sprout"></i><span>Herbal hair care<br>&amp; skincare</span></div>
+          <span class="demo-tag">Demo imagery</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Featured products -->
+    <section class="section section--sage" id="featured" aria-labelledby="featured-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">CURATED FOR YOU</p>
+          <h2 class="h-lg" id="featured-title">Discover Your Essentials</h2>
+          <p class="lead">Thoughtfully selected care for skin and hair.</p>
+        </div>
+        <div class="grid grid--2" id="featured-grid"></div>
+      </div>
+    </section>
+
+    <!-- 3. Ingredients -->
+    <section class="section" id="ingredients" aria-labelledby="ing-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">NATURE, EXPLAINED</p>
+          <h2 class="h-lg" id="ing-title">Ingredients We Use</h2>
+          <p class="lead">Placeholder entries — real ingredient details will be added once supplied.</p>
+        </div>
+        <div class="grid grid--4" id="ingredients-grid"></div>
+      </div>
+    </section>
+
+    <!-- 4. Before & After -->
+    <section class="section section--blush" id="results" aria-labelledby="ba-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">REAL RESULTS</p>
+          <h2 class="h-lg" id="ba-title">Before &amp; After</h2>
+          <p class="lead">Only genuine, authorised images will be shown here. Individual results vary.</p>
+        </div>
+        <div class="ba-grid" id="ba-grid"></div>
+      </div>
+    </section>
+
+    <!-- 5. Special offers (rendered only when genuine offers exist in data.js) -->
+    <section class="section" id="offers" aria-labelledby="offers-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">SPECIAL OFFERS</p>
+          <h2 class="h-lg" id="offers-title">Current Offers</h2>
+        </div>
+        <div class="grid grid--3" id="offers-grid"></div>
+      </div>
+    </section>
+
+    <!-- 6. Testimonials -->
+    <section class="section section--sage" id="testimonials" aria-labelledby="rev-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">KIND WORDS</p>
+          <h2 class="h-lg" id="rev-title">Customer Testimonials</h2>
+        </div>
+        <div class="grid grid--3 reviews" id="reviews-grid"></div>
+      </div>
+    </section>
+
+    <!-- 7. FAQ -->
+    <section class="section" id="faq" aria-labelledby="faq-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">GOOD TO KNOW</p>
+          <h2 class="h-lg" id="faq-title">Frequently Asked Questions</h2>
+        </div>
+        <div class="faq" id="faq-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 8. Footer -->
+  <div id="site-footer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="data.js"></script>
+  <script src="live.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>

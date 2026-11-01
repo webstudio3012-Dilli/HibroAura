@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Products — HibroAura</title>
+  <meta name="description" content="Explore the HibroAura skincare and haircare range.">
+  <meta name="theme-color" content="#526447">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&amp;display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.remove("no-js");</script>
+</head>
+
+<body data-page="products">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <header class="page-head container">
+      <p class="eyebrow enter" style="--d:0">THE COLLECTION</p>
+      <h1 class="h-xl enter" style="--d:1">Care, curated for you.</h1>
+      <p class="lead enter" style="--d:2">Explore our skincare and haircare range.</p>
+    </header>
+
+    <section class="container" style="padding-bottom: var(--section)" aria-label="Products">
+      <div class="filters" id="filters" role="group" aria-label="Filter products by category"></div>
+      <p class="sr-only" id="products-count" role="status" aria-live="polite"></p>
+      <div class="grid grid--3" id="products-grid"></div>
+      <p class="empty" id="products-empty" hidden>No products in this category yet.</p>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="data.js"></script>
+  <script src="live.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
