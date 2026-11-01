@@ -49,6 +49,7 @@ create table if not exists public.testimonials (
   name text not null check (char_length(name) between 2 and 60),
   text text not null check (char_length(text) between 10 and 600),
   rating int check (rating between 1 and 5),
+  result text check (result is null or char_length(result) <= 80),
   status text not null default 'pending' check (status in ('pending','approved','rejected')),
   created_at timestamptz not null default now());
 alter table public.testimonials enable row level security;
@@ -58,6 +59,8 @@ drop policy if exists "admin manages testimonials" on public.testimonials;
 create policy "public reads approved" on public.testimonials for select using (status = 'approved' or public.is_admin());
 create policy "public submits pending" on public.testimonials for insert to anon, authenticated with check (status = 'pending');
 create policy "admin manages testimonials" on public.testimonials for all using (public.is_admin()) with check (public.is_admin());
+
+-- (Existing projects: run supabase/migration-002-testimonial-result.sql to add the `result` column.)
 
 -- 5. Customer enquiries (logged when a customer opens a WhatsApp order) --------
 -- NOT confirmed orders: the customer still has to press Send in WhatsApp.

@@ -3488,6 +3488,270 @@ h4 {
 .hero__arch.has-photo::after {
   display: none;
 }
+
 /* ---------- Offer popup image (admin-uploaded) ---------- */
-.offer__img { width: 100%; height: auto; max-height: 240px; object-fit: cover; display: block; }
-.offer__img + .offer__body { padding-top: 24px; }
+.offer__img {
+  width: 100%;
+  height: auto;
+  max-height: 240px;
+  object-fit: cover;
+  display: block;
+}
+
+.offer__img+.offer__body {
+  padding-top: 24px;
+}
+
+/* ==========================================================================
+   Offer pop-up — compact sizing (always fits the screen; scrolls only on very short screens)
+   ========================================================================== */
+.offer {
+  max-width: 380px;
+  max-height: calc(100vh - 40px);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 22px;
+}
+
+.offer__img {
+  height: clamp(110px, 22vh, 150px);
+  max-height: none;
+  object-fit: cover;
+}
+
+.offer__body {
+  padding: 40px 24px 22px;
+  gap: 10px;
+}
+
+.offer__img+.offer__body {
+  padding-top: 20px;
+}
+
+.offer__label {
+  font-size: .64rem;
+  padding: 5px 12px;
+}
+
+.offer h2 {
+  font-size: clamp(1.55rem, 5.5vw, 2rem);
+  line-height: 1.1;
+}
+
+.offer p {
+  font-size: .95rem;
+  line-height: 1.5;
+  max-width: 32ch;
+}
+
+.offer__code {
+  padding: 8px 20px;
+}
+
+.offer__code strong {
+  font-size: 1.1rem;
+}
+
+.offer .btn {
+  margin-top: 2px;
+  min-height: 48px;
+}
+
+.offer__skip {
+  min-height: 40px;
+}
+
+@media (max-width: 480px) {
+  .offer {
+    max-width: 340px;
+  }
+
+  .offer__body {
+    padding: 36px 20px 16px;
+  }
+
+  .offer__img+.offer__body {
+    padding-top: 16px;
+  }
+}
+
+@media (max-height: 520px) {
+  .offer__img {
+    height: 84px;
+  }
+
+  .offer__body {
+    gap: 8px;
+  }
+}
+
+/* ==========================================================================
+   Customer reviews — "Share your experience" form + result tag on review cards
+   ========================================================================== */
+.rvform {
+  max-width: 640px;
+  margin: clamp(40px, 6vw, 64px) auto 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: clamp(22px, 4vw, 36px);
+  display: grid;
+  gap: 18px;
+  box-shadow: 0 22px 44px -32px rgba(41, 39, 37, .4);
+}
+
+.rvform__head h3 {
+  font-family: var(--font-head);
+  font-size: clamp(1.4rem, 3.6vw, 1.75rem);
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  margin: 0 0 6px;
+}
+
+.rvform__head p {
+  margin: 0;
+  color: var(--grey);
+  font-size: .95rem;
+}
+
+.rvform__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.rvform .field,
+.rv-rate {
+  min-width: 0;
+}
+
+.rvform__opt {
+  color: var(--grey);
+  font-weight: 400;
+}
+
+.rvform__count {
+  align-self: flex-end;
+  font-size: .76rem;
+  color: var(--grey);
+}
+
+.rv-rate {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rv-rate legend {
+  padding: 0;
+  margin: 0 0 6px;
+}
+
+.rv-stars {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  align-self: flex-start;
+}
+
+.rv-stars input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.rv-stars label {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 48px;
+  font-size: 2rem;
+  line-height: 1;
+  color: #d9d1cc;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: color .15s, transform .15s;
+}
+
+.rv-stars label:hover,
+.rv-stars label:hover~label,
+.rv-stars input:checked~label {
+  color: var(--burgundy);
+}
+
+.rv-stars label:hover {
+  transform: scale(1.1);
+}
+
+.rv-stars input:focus-visible+label {
+  outline: 2px solid var(--green);
+  outline-offset: 1px;
+}
+
+.rvform [aria-invalid="true"] {
+  border-color: var(--burgundy);
+}
+
+.rv-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.rvform__msg {
+  margin: 0;
+  min-height: 1.3em;
+  font-size: .92rem;
+  text-align: center;
+  color: var(--grey);
+}
+
+.rvform__msg.is-ok {
+  color: var(--green);
+  font-weight: 500;
+}
+
+.rvform__msg.is-err {
+  color: var(--burgundy);
+}
+
+@media (max-width: 560px) {
+  .rvform__row {
+    grid-template-columns: 1fr;
+  }
+
+  .rvform {
+    border-radius: 20px;
+  }
+}
+
+.review__result {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  margin: 0;
+  padding: 5px 12px;
+  background: var(--sage);
+  color: var(--green-dark);
+  border-radius: var(--radius-pill);
+  font-size: .8rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.review__result span {
+  font-size: .62rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--green);
+}

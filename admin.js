@@ -10,7 +10,7 @@
   let sb, S = {}, view = "dashboard", ft;
 
   function flash(msg, err) { const f = $("#flash"); f.textContent = msg; f.className = err ? "err" : ""; f.style.display = "block"; clearTimeout(ft); ft = setTimeout(() => { f.style.display = "none"; }, 4200); }
-  function el(html) { const d = document.createElement("div"); d.innerHTML = html.trim(); return d.firstChild; }
+  function el(html) { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; }   // template keeps <tr>/<td> intact
   const field = (id, label, control, cls) => el('<div class="afield ' + (cls || "") + '"><label for="' + id + '">' + esc(label) + "</label>" + control + "</div>");
   const httpsOk = (u) => !u || /^https:\/\/[^\s]+$/i.test(u);
 
@@ -47,17 +47,32 @@
 
   /* ---------- Shell ---------- */
   function shell() {
-    root.innerHTML = '<div class="shell"><nav class="side" aria-label="Admin"><div class="side__brand">HibroAura admin</div>' +
+    root.innerHTML = '<div class="shell"><header class="topbar"><b id="tb-title">HibroAura admin</b><button type="button" id="menu" aria-expanded="false" aria-controls="nav">Menu</button></header><nav class="side" id="nav" aria-label="Admin"><div class="side__brand">HibroAura admin</div>' +
       NAV.map((n) => '<button type="button" data-v="' + n[0] + '">' + n[1] + "</button>").join("") +
       '<button type="button" onclick="location.href=\'index.html\'">View website ↗</button><button type="button" class="side__out" id="out">Log out</button></nav><main class="main" id="view"></main></div>';
     root.querySelectorAll("[data-v]").forEach((b) => { b.onclick = () => go(b.dataset.v); });
+    const nav = $("#nav"), menu = $("#menu");
+    const closeMenu = () => { nav.classList.remove("open"); menu.setAttribute("aria-expanded", "false"); menu.textContent = "Menu"; };
+    menu.onclick = () => { const o = nav.classList.toggle("open"); menu.setAttribute("aria-expanded", String(o)); menu.textContent = o ? "Close" : "Menu"; };
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenu(); });
+    root.querySelectorAll("[data-v]").forEach((b) => b.addEventListener("click", closeMenu));
     $("#out").onclick = async () => { await sb.auth.signOut(); loginView(); };
     go(view);
   }
   async function go(v) {
     view = v; root.querySelectorAll("[data-v]").forEach((b) => b.setAttribute("aria-current", String(b.dataset.v === v)));
+    const tt = $("#tb-title"); if (tt) tt.textContent = (NAV.find((n) => n[0] === v) || [])[1] || "HibroAura admin"; window.scrollTo(0, 0);
     const m = $("#view"); m.innerHTML = '<p class="muted">Loading…</p>';
-    try { await ({ dashboard, media, products, testimonials, offer, settings })[v](m); } catch (e) { console.error(e); m.innerHTML = '<p class="login__err">Something went wrong: ' + esc(e.message || e) + "</p>"; }
+    try { await ({ dashboard, media, products, testimonials, offer, settings })[v](m); labelTables(m); } catch (e) { console.error(e); m.innerHTML = '<p class="login__err">Something went wrong: ' + esc(e.message || e) + "</p>"; }
+  }
+
+  // Phones show each table row as a card; this copies the column headings onto cells as labels
+  function labelTables(scope) {
+    scope.querySelectorAll("table").forEach((t) => {
+      const h = [...t.querySelectorAll("tr")].find((r) => r.querySelector("th")); if (!h) return;
+      h.classList.add("th"); const L = [...h.children].map((x) => x.textContent.trim());
+      t.querySelectorAll("tr:not(.th)").forEach((r) => [...r.children].forEach((c, i) => { if (c.tagName === "TD" && !c.hasAttribute("colspan") && L[i]) c.setAttribute("data-label", L[i]); }));
+    });
   }
 
   /* ---------- Reusable pieces ---------- */
@@ -91,12 +106,14 @@
   async function dashboard(m) {
     const count = async (t, f) => { let q = sb.from(t).select("id", { count: "exact", head: true }); if (f) q = f(q); const r = await q; return r.error ? "–" : r.count; };
     const [np, nt, npend, ne, enq, prod] = await Promise.all([count("products"), count("testimonials", (q) => q.eq("status", "approved")), count("testimonials", (q) => q.eq("status", "pending")), count("enquiries"),
-      sb.from("enquiries").select("*").order("created_at", { ascending: false }).limit(8), sb.from("products").select("name,updated_at").order("updated_at", { ascending: false }).limit(5)]);
+    sb.from("enquiries").select("*").order("created_at", { ascending: false }).limit(8), sb.from("products").select("name,updated_at").order("updated_at", { ascending: false }).limit(5)]);
     head(m, "Dashboard");
-    m.insertAdjacentHTML("beforeend", '<div class="stats">' + [[np, "Products"], [nt, "Approved testimonials"], [npend, "Pending approvals"], [ne, "Customer enquiries"]].map((s) => '<div class="stat"><b>' + s[0] + "</b><span>" + s[1] + "</span></div>").join("") + "</div>" +
+    const pend = Number(npend) > 0;
+    m.insertAdjacentHTML("beforeend", '<div class="stats">' + [[np, "Products", "products"], [nt, "Approved testimonials", "testimonials"], [npend, "Pending approvals", "testimonials", pend], [ne, "Customer enquiries", ""]].map((s) => '<button type="button" class="stat' + (s[3] ? " stat--alert" : "") + '"' + (s[2] ? ' data-go="' + s[2] + '"' : " disabled") + "><b>" + s[0] + "</b><span>" + s[1] + "</span>" + (s[3] ? "<em>Review now →</em>" : "") + "</button>").join("") + "</div>" +
       '<section class="acard"><h3>Recent customer enquiries</h3><p class="muted">Logged when a customer opens the WhatsApp order message. These are not confirmed orders — confirm each one with the customer.</p><div class="scroll"><table class="tbl"><tr><th>When</th><th>Customer</th><th>Phone</th><th>Product</th><th>Qty</th><th>Total</th></tr>' +
       ((enq.data || []).map((e) => "<tr><td>" + new Date(e.created_at).toLocaleString("en-IN") + "</td><td>" + esc(e.customer_name) + "</td><td>" + esc(e.phone) + "</td><td>" + esc(e.product_name) + "</td><td>" + esc(e.quantity) + "</td><td>" + (e.total ? "₹" + esc(e.total) : "–") + "</td></tr>").join("") || '<tr><td colspan="6">No enquiries yet.</td></tr>') + '</table></div></section>' +
       '<section class="acard"><h3>Recent product updates</h3><div class="scroll"><table class="tbl">' + ((prod.data || []).map((p) => "<tr><td>" + esc(p.name) + "</td><td>" + new Date(p.updated_at).toLocaleString("en-IN") + "</td></tr>").join("") || "<tr><td>No products yet.</td></tr>") + "</table></div></section>");
+    m.querySelectorAll("[data-go]").forEach((b) => { b.onclick = () => go(b.dataset.go); });
   }
 
   /* ---------- Site images (logo, hero, featured, ingredients, before/after) ---------- */
@@ -182,17 +199,17 @@
   async function testimonials(m) {
     head(m, "Testimonials");
     const r = await sb.from("testimonials").select("*").order("created_at", { ascending: false }); if (r.error) throw r.error;
-    const sec = el('<section class="acard"><p class="muted">Only <b>Approved</b> testimonials appear on the website.</p><div class="scroll"><table class="tbl"><tr><th>Date</th><th>Customer</th><th>Review</th><th>Rating</th><th>Status</th><th></th></tr></table></div></section>');
+    const sec = el('<section class="acard"><p class="muted">Only <b>Approved</b> testimonials appear on the website.</p><div class="scroll"><table class="tbl"><tr><th>Date</th><th>Customer</th><th>Result</th><th>Review</th><th>Rating</th><th>Status</th><th></th></tr></table></div></section>');
     const setStatus = async (id, status) => { const u = await sb.from("testimonials").update({ status }).eq("id", id); if (u.error) flash(u.error.message, 1); else { flash("Updated ✓"); go("testimonials"); } };
     r.data.forEach((t) => {
-      const tr = el("<tr><td>" + new Date(t.created_at).toLocaleDateString("en-IN") + "</td><td>" + esc(t.name) + "</td><td>" + esc(t.text) + "</td><td>" + (t.rating ? "★".repeat(t.rating) : "–") + '</td><td><span class="pill-s ' + esc(t.status) + '">' + esc(t.status) + '</span></td><td class="acts"></td></tr>');
+      const tr = el("<tr><td>" + new Date(t.created_at).toLocaleDateString("en-IN") + "</td><td>" + esc(t.name) + "</td><td>" + esc(t.result || "–") + "</td><td>" + esc(t.text) + "</td><td>" + (t.rating ? "★".repeat(t.rating) : "–") + '</td><td><span class="pill-s ' + esc(t.status) + '">' + esc(t.status) + '</span></td><td class="acts"></td></tr>');
       const acts = $(".acts", tr), b = (txt, cls, fn) => { const x = el('<button class="mini ' + cls + '" type="button">' + txt + "</button>"); x.onclick = fn; acts.append(x); };
       if (t.status !== "approved") b("Approve", "", () => setStatus(t.id, "approved"));
       if (t.status !== "rejected") b(t.status === "approved" ? "Unpublish" : "Reject", "danger", () => setStatus(t.id, "rejected"));
       b("Delete", "danger", async () => { if (!confirm("Permanently delete this testimonial?")) return; const d = await sb.from("testimonials").delete().eq("id", t.id); if (d.error) flash(d.error.message, 1); else go("testimonials"); });
       $("table", sec).append(tr);
     });
-    if (!r.data.length) $("table", sec).insertAdjacentHTML("beforeend", '<tr><td colspan="6">No testimonials submitted yet.</td></tr>');
+    if (!r.data.length) $("table", sec).insertAdjacentHTML("beforeend", '<tr><td colspan="7">No testimonials submitted yet.</td></tr>');
     m.append(sec);
   }
 
@@ -200,10 +217,10 @@
   async function offer(m) {
     head(m, "Offer popup"); const o = S.offer || {}, img = imgField("Offer image (optional)", o.image, "offer", "Shown at the top of the popup.");
     const parts = [field("o-on", "Show the offer popup on the website", '<input id="o-on" type="checkbox"' + (o.enabled ? " checked" : "") + ">", "chk"),
-      field("o-label", "Small label", '<input id="o-label" maxlength="30" value="' + esc(o.label || "Special offer") + '">'), field("o-title", "Title", '<input id="o-title" maxlength="80" value="' + esc(o.title) + '">'),
-      field("o-text", "Description", '<textarea id="o-text" rows="3" maxlength="240">' + esc(o.text) + "</textarea>"), field("o-code", "Coupon code (optional)", '<input id="o-code" maxlength="30" value="' + esc(o.code) + '">'),
-      field("o-cta", "Button text", '<input id="o-cta" maxlength="30" value="' + esc(o.ctaLabel || "Shop Now") + '">'), field("o-href", "Button link (e.g. products.html or https://…)", '<input id="o-href" maxlength="300" value="' + esc(o.ctaHref || "products.html") + '">'),
-      field("o-freq", "How often to show it", '<select id="o-freq"><option value="session">Once per visit</option><option value="daily">Once per day</option><option value="always">Every page load</option></select>'), img];
+    field("o-label", "Small label", '<input id="o-label" maxlength="30" value="' + esc(o.label || "Special offer") + '">'), field("o-title", "Title", '<input id="o-title" maxlength="80" value="' + esc(o.title) + '">'),
+    field("o-text", "Description", '<textarea id="o-text" rows="3" maxlength="240">' + esc(o.text) + "</textarea>"), field("o-code", "Coupon code (optional)", '<input id="o-code" maxlength="30" value="' + esc(o.code) + '">'),
+    field("o-cta", "Button text", '<input id="o-cta" maxlength="30" value="' + esc(o.ctaLabel || "Shop Now") + '">'), field("o-href", "Button link (e.g. products.html or https://…)", '<input id="o-href" maxlength="300" value="' + esc(o.ctaHref || "products.html") + '">'),
+    field("o-freq", "How often to show it", '<select id="o-freq"><option value="session">Once per visit</option><option value="daily">Once per day</option><option value="always">Every page load</option></select>'), img];
     const c = card("Offer popup", "The popup shows the latest saved offer, only while enabled.", parts, async () => {
       const v = (id) => $("#" + id, c).value.trim(), on = $("#o-on", c).checked, href = v("o-href");
       if (on && v("o-title").length < 2) throw new Error("Enter an offer title before enabling the popup.");
@@ -216,9 +233,9 @@
   async function settings(m) {
     head(m, "Website settings"); const an = S.announcement || {};
     const parts = [field("s-wa", "Owner WhatsApp number (country code + number, digits only)", '<input id="s-wa" inputmode="numeric" maxlength="15" value="' + esc(S.whatsapp) + '" placeholder="918790067693">'),
-      field("s-mail", "Contact email", '<input id="s-mail" type="email" maxlength="120" value="' + esc(S.email) + '">'), field("s-ig", "Instagram link", '<input id="s-ig" type="url" maxlength="200" value="' + esc(S.instagram) + '" placeholder="https://www.instagram.com/…">'),
-      field("s-fb", "Facebook link", '<input id="s-fb" type="url" maxlength="200" value="' + esc(S.facebook) + '" placeholder="https://www.facebook.com/…">'),
-      field("s-an", "Announcement bar text", '<input id="s-an" maxlength="160" value="' + esc(an.text) + '">'), field("s-anv", "Show the announcement bar", '<input id="s-anv" type="checkbox"' + (an.visible === false ? "" : " checked") + ">", "chk")];
+    field("s-mail", "Contact email", '<input id="s-mail" type="email" maxlength="120" value="' + esc(S.email) + '">'), field("s-ig", "Instagram link", '<input id="s-ig" type="url" maxlength="200" value="' + esc(S.instagram) + '" placeholder="https://www.instagram.com/…">'),
+    field("s-fb", "Facebook link", '<input id="s-fb" type="url" maxlength="200" value="' + esc(S.facebook) + '" placeholder="https://www.facebook.com/…">'),
+    field("s-an", "Announcement bar text", '<input id="s-an" maxlength="160" value="' + esc(an.text) + '">'), field("s-anv", "Show the announcement bar", '<input id="s-anv" type="checkbox"' + (an.visible === false ? "" : " checked") + ">", "chk")];
     const c = card("Contact, social & announcement", "Logo and offer popup have their own sections.", parts, async () => {
       const v = (id) => $("#" + id, c).value.trim(), wa = v("s-wa").replace(/\D/g, "");
       if (wa && (wa.length < 11 || wa.length > 15)) throw new Error("WhatsApp number must include the country code, e.g. 918790067693.");

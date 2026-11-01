@@ -482,9 +482,9 @@
       .map((r) => r.p);
     searchList.innerHTML = results.length
       ? results.map((p, n) => '<button class="search__item" type="button" role="option" id="sr-' + esc(p.id) + '" data-id="' + esc(p.id) + '">' +
-          '<span class="search__thumb" style="background:' + p.tone + '"><img src="' + esc(p.images[0]) + '" data-fb="' + p.fallbackImages[0] + '" alt=""></span>' +
-          '<span><span class="search__name">' + esc(p.name) + "</span>" + (n === 0 ? '<span class="search__best">Best match</span>' : "") + '<br><span class="search__meta">' + catShort(p.category) + " · " + esc(p.size) + "</span></span>" +
-          '<span class="search__price">' + priceText(p) + "</span></button>").join("")
+        '<span class="search__thumb" style="background:' + p.tone + '"><img src="' + esc(p.images[0]) + '" data-fb="' + p.fallbackImages[0] + '" alt=""></span>' +
+        '<span><span class="search__name">' + esc(p.name) + "</span>" + (n === 0 ? '<span class="search__best">Best match</span>' : "") + '<br><span class="search__meta">' + catShort(p.category) + " · " + esc(p.size) + "</span></span>" +
+        '<span class="search__price">' + priceText(p) + "</span></button>").join("")
       : '<p class="search__hint">No products found for “' + esc(q) + '”. Try “hair”, “skin” or a product name.</p>';
     if (results.length) setActive(0); else active = -1;   // top result is pre-selected so Enter opens the best match
   }
@@ -626,6 +626,7 @@
       return '<article class="review' + (i % 3 === 2 ? " review--tint" : "") + '">' +
         (t.image ? '<figure class="review__shot"><img src="' + esc(t.image) + '" alt="' + (dup ? "" : esc((t.name || "Customer") + "'s result")) + '" data-shot="' + (t.demo ? "demo" : "real") + '" loading="lazy" draggable="false"></figure>' : "") +
         (t.rating ? '<div class="stars" role="img" aria-label="' + t.rating + ' out of 5 stars">' + stars + "</div>" : "") +
+        (t.result ? '<p class="review__result"><span>Result</span>' + esc(t.result) + "</p>" : "") +
         '<p class="review__text">' + esc(t.text) + "</p>" +
         '<div class="review__foot"><span class="review__avatar" aria-hidden="true">' + initial + '</span><span class="review__who"><strong>' + esc(t.name) + "</strong>" +
         (t.product ? '<span class="review__prod">' + esc(t.product) + "</span>" : "") +
